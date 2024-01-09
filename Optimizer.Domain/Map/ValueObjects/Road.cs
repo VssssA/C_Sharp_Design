@@ -3,16 +3,20 @@ using Optimizer.Domain.Common.Models;
 
 namespace Optimizer.Domain.Map.ValueObjects;
 
-public class Road<TStationId> : ValueObject 
-    where TStationId : notnull
+public sealed class Road : ValueObject
 {
-    public Station<TStationId> StartStation { get; } 
-    public Station<TStationId> EndStation { get; } 
+    public Station StartStation { get; } 
+    public Station EndStation { get; } 
     
-    public Road(Station<TStationId> startStation, Station<TStationId> endStation)
+    private Road(Station startStation, Station endStation)
     {
         StartStation = startStation;
         EndStation = endStation;
+    }
+
+    public static Road Create(Station startStation, Station endStation)
+    {
+        return new Road(startStation, endStation);
     }
     
     public override IEnumerable<object?> GetEqualityComponents()

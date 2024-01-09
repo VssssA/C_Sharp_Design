@@ -2,11 +2,11 @@
 
 namespace Optimizer.Domain.Route.ValueObjects;
 
-public class RouteId : ValueObject
+public sealed class RouteId : ValueObject
 {
     public Guid Value { get; }
 
-    protected RouteId(Guid value)
+    private RouteId(Guid value)
     {
         Value = value;
     }

@@ -4,13 +4,13 @@ using Optimizer.Domain.Route;
 
 namespace Optimizer.Domain.Bus;
 
-public class Bus : Transport<BusId>
+public sealed class Bus : Transport<BusId>
 {
-    private readonly List<Route<Bus, BusId, BusStationId>> _busRoutes = new();
-    public IReadOnlyList<Route<Bus, BusId, BusStationId>> BusRoutes => _busRoutes;
+    private readonly List<Route<Bus, BusId>> _busRoutes = new();
+    public IReadOnlyList<Route<Bus, BusId>> BusRoutes => _busRoutes;
     public PlateNumber PlateNumber { get; private set; }
     
-    public Bus(
+    private Bus(
         BusId id,
         int maxPassengersCount,
         PlateNumber plateNumber) : base(id, maxPassengersCount, 0)
@@ -18,7 +18,14 @@ public class Bus : Transport<BusId>
         PlateNumber = plateNumber;
     }
 
-    public void AddRoute(Route<Bus, BusId, BusStationId> route)
+    public static Bus Create(
+        int maxPassengersCount,
+        PlateNumber plateNumber)
+    {
+        return new Bus(BusId.CreateUnique(), maxPassengersCount, plateNumber);
+    }
+
+    public void AddRoute(Route<Bus, BusId> route)
     {
         _busRoutes.Add(route);
     }

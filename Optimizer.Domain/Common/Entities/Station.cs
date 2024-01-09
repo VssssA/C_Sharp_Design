@@ -1,13 +1,13 @@
 ﻿using Optimizer.Domain.Common.Models;
+using Optimizer.Domain.Common.ValueObjects;
 
 namespace Optimizer.Domain.Common.Entities;
 
-public class Station<TId> : Entity<TId>
-    where TId : notnull
+public abstract class Station : Entity<StationId>
 {
     public string StationName { get; private set; }
     
-    public Station(TId id, string stationName) : base(id)
+    protected Station(StationId id, string stationName) : base(id)
     {
         StationName = stationName;
     }

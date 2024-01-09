@@ -2,11 +2,11 @@
 
 namespace Optimizer.Domain.Common.ValueObjects;
 
-public abstract class TransportId : ValueObject
+public abstract class StationId : ValueObject
 {
     public Guid Value { get; }
 
-    protected TransportId(Guid value)
+    protected StationId(Guid value)
     {
         Value = value;
     }

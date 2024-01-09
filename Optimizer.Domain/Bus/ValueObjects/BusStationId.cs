@@ -1,24 +1,21 @@
-﻿using Optimizer.Domain.Common.Models;
+﻿using Optimizer.Domain.Common.ValueObjects;
 
 namespace Optimizer.Domain.Bus.ValueObjects;
 
-public class BusStationId : ValueObject
+public sealed class BusStationId : StationId
 {
-    public Guid Value { get; }
-
-    protected BusStationId(Guid value)
+    private BusStationId(Guid value) : base(value)
     {
-        Value = value;
     }
 
     public static BusStationId CreateUnique()
     {
-        return new(Guid.NewGuid());
+        return new BusStationId(Guid.NewGuid());
     }
 
     public static BusStationId Create(Guid value)
     {
-        return new(value);
+        return new BusStationId(value);
     }
     
     public override IEnumerable<object> GetEqualityComponents()

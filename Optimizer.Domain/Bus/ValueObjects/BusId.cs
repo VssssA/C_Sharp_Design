@@ -2,7 +2,7 @@
 
 namespace Optimizer.Domain.Bus.ValueObjects;
 
-public class BusId : TransportId
+public sealed class BusId : TransportId
 {
     private BusId(Guid value) : base(value)
     {
