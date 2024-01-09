@@ -2,13 +2,18 @@
 
 namespace Optimizer.Domain.Bus.ValueObjects;
 
-public class PlateNumber : ValueObject
+public sealed class PlateNumber : ValueObject
 {
     public string Number { get; }
     
-    public PlateNumber(string number)
+    private PlateNumber(string number)
     {
         Number = number;
+    }
+
+    public static PlateNumber Create(string number)
+    {
+        return new PlateNumber(number);
     }
     
     public override IEnumerable<object?> GetEqualityComponents()

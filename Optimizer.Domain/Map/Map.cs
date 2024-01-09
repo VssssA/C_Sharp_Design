@@ -3,9 +3,17 @@ using Optimizer.Domain.Map.ValueObjects;
 
 namespace Optimizer.Domain.Map;
 
-public class Map : Entity<MapId>
+public sealed class Map : Entity<MapId> 
 {
-    public Map(MapId id) : base(id)
+    private readonly HashSet<Road> _roads = new();
+    public IReadOnlySet<Road> Roads => _roads;
+    
+    private Map(MapId id) : base(id)
     {
+    }
+
+    public static Map Create()
+    {
+        return new Map(MapId.CreateUnique());
     }
 }
