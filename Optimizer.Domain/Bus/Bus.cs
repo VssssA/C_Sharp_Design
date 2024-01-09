@@ -6,16 +6,20 @@ namespace Optimizer.Domain.Bus;
 
 public class Bus : Transport<BusId>
 {
-    public List<Route<Bus, BusId, BusStationId>> BusRoutes { get; private set; }
+    private readonly List<Route<Bus, BusId, BusStationId>> _busRoutes = new();
+    public IReadOnlyList<Route<Bus, BusId, BusStationId>> BusRoutes => _busRoutes;
     public PlateNumber PlateNumber { get; private set; }
     
     public Bus(
         BusId id,
-        List<Route<Bus, BusId, BusStationId>> busRoutes,
         int maxPassengersCount,
         PlateNumber plateNumber) : base(id, maxPassengersCount, 0)
     {
-        BusRoutes = busRoutes;
         PlateNumber = plateNumber;
+    }
+
+    public void AddRoute(Route<Bus, BusId, BusStationId> route)
+    {
+        _busRoutes.Add(route);
     }
 }

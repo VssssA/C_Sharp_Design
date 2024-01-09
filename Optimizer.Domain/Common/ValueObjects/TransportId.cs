@@ -10,16 +10,6 @@ public class TransportId : ValueObject
     {
         Value = value;
     }
-
-    public static TransportId CreateUnique()
-    {
-        return new(Guid.NewGuid());
-    }
-
-    public static TransportId Create(Guid value)
-    {
-        return new(value);
-    }
     
     public override IEnumerable<object> GetEqualityComponents()
     {
