@@ -5,23 +5,22 @@ using Optimizer.Domain.Route.ValueObjects;
 
 namespace Optimizer.Domain.Route;
 
-public sealed class Route<TTransport, TTransportId> : Entity<RouteId>
-    where TTransport : Transport<TTransportId>
+public sealed class Route<TTransportId> : Entity<RouteId>
     where TTransportId : TransportId
 {
-    public TTransport Transport { get; private set; }
+    public Transport<TTransportId> Transport { get; private set; }
     private readonly List<ArrivalTime> _arrivalTimes;
     public IReadOnlyList<ArrivalTime> ArrivalTimes => _arrivalTimes;
     
-    private Route(RouteId id, TTransport transport, List<ArrivalTime> arrivalTimes) : base(id)
+    private Route(RouteId id, Transport<TTransportId> transport, List<ArrivalTime> arrivalTimes) : base(id)
     {
         Transport = transport;
         _arrivalTimes = arrivalTimes;
     }
     
-    public static Route<TTransport, TTransportId> Create(TTransport transport, List<ArrivalTime> arrivalTimes)
+    public static Route<TTransportId> Create(Transport<TTransportId> transport, List<ArrivalTime> arrivalTimes)
     {
-        return new Route<TTransport, TTransportId>(RouteId.CreateUnique(), transport, arrivalTimes);
+        return new Route<TTransportId>(RouteId.CreateUnique(), transport, arrivalTimes);
     }
     
     public override IEnumerable<object?> GetEqualityComponents()

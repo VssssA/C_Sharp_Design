@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Optimizer.Domain\Optimizer.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
