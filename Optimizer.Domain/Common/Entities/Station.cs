@@ -11,4 +11,9 @@ public abstract class Station : Entity<StationId>
     {
         StationName = stationName;
     }
+
+    public override string ToString()
+    {
+        return StationName;
+    }
 }

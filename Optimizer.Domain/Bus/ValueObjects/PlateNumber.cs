@@ -20,4 +20,9 @@ public sealed class PlateNumber : ValueObject
     {
         yield return Number;
     }
+
+    public override string ToString()
+    {
+        return Number;
+    }
 }

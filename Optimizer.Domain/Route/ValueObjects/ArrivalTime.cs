@@ -7,6 +7,7 @@ public sealed class ArrivalTime : ValueObject
 {
     public Station Station { get; }
     public DateTime Time { get; }
+    public int PassengersCount { get; set; }
     
     private ArrivalTime(Station station, DateTime time)
     {
@@ -23,5 +24,11 @@ public sealed class ArrivalTime : ValueObject
     {
         yield return Station;
         yield return Time;
+        yield return PassengersCount;
+    }
+
+    public override string ToString()
+    {
+        return $"Station: {Station}, ArrivalTime: {Time:hh:mm:ss}";
     }
 }
