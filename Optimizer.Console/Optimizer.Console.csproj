@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Optimizer.Application\Optimizer.Application.csproj" />
     <ProjectReference Include="..\Optimizer.Domain\Optimizer.Domain.csproj" />
     <ProjectReference Include="..\Optimizer.PathMaker\Optimizer.PathMaker.csproj" />
   </ItemGroup>
