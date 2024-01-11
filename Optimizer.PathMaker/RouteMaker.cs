@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Optimizer.Domain.Bus;
+﻿using Optimizer.Domain.Bus;
 using Optimizer.Domain.Bus.Entities;
 using Optimizer.Domain.Bus.ValueObjects;
-using Optimizer.Domain.Common.Entities;
-using Optimizer.Domain.Common.ValueObjects;
 using Optimizer.Domain.Route;
 using Optimizer.Domain.Route.ValueObjects;
 
@@ -19,7 +11,7 @@ namespace Optimizer.PathMaker.RouteMaker
     {
         public static List<BusStation> stopsList = new List<BusStation>();
 
-        public static Route<Bus,BusId> MakeNewRoute()
+        public static Route<BusId> MakeNewRoute()
         {
             Random random = new Random();
 
@@ -38,14 +30,14 @@ namespace Optimizer.PathMaker.RouteMaker
                 arrivalTimes.Add(ArrivalTime.Create(station, time));
 
             }
-            var route = Route<Bus, BusId>.Create(bus, arrivalTimes);
+            var route = Route<BusId>.Create(bus, arrivalTimes);
             bus.AddRoute(route);
             return route;
         }
 
-        public static List<Route<Bus, BusId>> MakeNewRoutes(int numberOfRoutes)
+        public static List<Route<BusId>> MakeNewRoutes(int numberOfRoutes)
         {
-            var routes = new List<Route<Bus, BusId>>();
+            var routes = new List<Route<BusId>>();
             for (int i = 0;i < numberOfRoutes; i++)
             {
                 routes.Add(MakeNewRoute());

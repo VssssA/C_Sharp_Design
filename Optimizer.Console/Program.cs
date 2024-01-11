@@ -6,17 +6,6 @@ using Optimizer.Domain.Common.Entities;
 using Optimizer.Domain.Route;
 using Optimizer.Domain.Route.ValueObjects;
 using Optimizer.PathMaker.RouteMaker;
-using Optimizer.PathMaker.MapMaker;
-using System.Net.Http.Headers;
-using Optimizer.Domain.Common.Entities;
-using System.Runtime.ExceptionServices;
-using System.Security.AccessControl;
-
-/*var bus = Bus.Create(100, PlateNumber.Create("asd"));*/
-
-// var arrivalTimes = new List<ArrivalTime> { ArrivalTime.Create(busStation, DateTime.UtcNow) };
-// var route = Route<Bus, BusId>.Create(bus, arrivalTimes);
-// bus.AddRoute(route);
 
 internal class Program
 {
@@ -25,7 +14,6 @@ internal class Program
         var bus = Bus.Create(100, PlateNumber.Create("bus"));
         var bus2 = Bus.Create(100, PlateNumber.Create("bus2"));
         var busStation = BusStation.Create("Station1");
-
         var busStation2 = BusStation.Create("Station2");
         var busStation3 = BusStation.Create("Station3");
         var busStation4 = BusStation.Create("Station4");
@@ -73,8 +61,7 @@ internal class Program
 
         PathFinder.FindPath(busStation, busStation2, new List<Transport<BusId>> { bus, bus2 }, DateTime.UtcNow);
 
-
-/*        var route = RouteMaker.MakeNewRoute();
+        /*        var route = RouteMaker.MakeNewRoute();
         Console.WriteLine(route.Transport.PlateNumber.Number);
         Console.WriteLine(route.Transport.Id.Value);
         Console.WriteLine(route.ArrivalTimes.Count);
@@ -84,11 +71,11 @@ internal class Program
         {
             Console.WriteLine(time.Time);
         }*/
-
+        
         var routes = RouteMaker.MakeNewRoutes(5);
         for (int i = 0; i < routes.Count; i++)
         {
-            Console.WriteLine(routes[i].Transport.PlateNumber.Number);
+            Console.WriteLine(routes[i].Transport);
             Console.WriteLine(RouteMaker.stopsList[i].StationName);
         }
     }
