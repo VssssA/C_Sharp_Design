@@ -9,15 +9,16 @@ public sealed class ArrivalTime : ValueObject
     public DateTime Time { get; }
     public int PassengersCount { get; set; }
     
-    private ArrivalTime(Station station, DateTime time)
+    private ArrivalTime(Station station, DateTime time, int passengersCount)
     {
         Station = station;
         Time = time;
+        PassengersCount = passengersCount;
     }
 
-    public static ArrivalTime Create(Station station, DateTime time)
+    public static ArrivalTime Create(Station station, DateTime time, int passengersCount)
     {
-        return new ArrivalTime(station, time);
+        return new ArrivalTime(station, time, passengersCount);
     }
     
     public override IEnumerable<object?> GetEqualityComponents()

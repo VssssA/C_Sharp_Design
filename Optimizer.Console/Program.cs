@@ -22,33 +22,33 @@ internal class Program
 
         var arrivalTimes = new List<ArrivalTime>
         {
-            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(1)),
-            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(2)),
-            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(3)),
-            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(4)),
+            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(1), 25),
+            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(2), 67),
+            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(3), 88),
+            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(4), 10),
         };
         var arrivalTimes2 = new List<ArrivalTime>
         {
-            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(1)),
-            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(2)),
-            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(3)),
-            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(4)),
+            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(1), 10),
+            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(2), 20),
+            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(3), 25),
+            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(4), 12),
         };
         var arrivalTimes3 = new List<ArrivalTime>
         {
-            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(1)),
-            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(2)),
-            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(3)),
-            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(4)),
-            ArrivalTime.Create(busStation6, DateTime.UtcNow.AddHours(5)),
+            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(1), 100),
+            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(2), 100),
+            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(3), 100),
+            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(4), 100),
+            ArrivalTime.Create(busStation6, DateTime.UtcNow.AddHours(5), 100),
         };
         var arrivalTimes4 = new List<ArrivalTime>
         {
-            ArrivalTime.Create(busStation6, DateTime.UtcNow.AddHours(1)),
-            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(2)),
-            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(3)),
-            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(4)),
-            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(5)),
+            ArrivalTime.Create(busStation6, DateTime.UtcNow.AddHours(1), 70),
+            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(2), 12),
+            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(3), 14),
+            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(4), 20),
+            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(5), 40),
         };
         var route = Route<BusId>.Create(bus, arrivalTimes);
         var route2 = Route<BusId>.Create(bus, arrivalTimes2);
@@ -59,8 +59,8 @@ internal class Program
         bus2.AddRoute(route3);
         bus2.AddRoute(route4);
 
-        PathFinder.FindPath(busStation, busStation2, new List<Transport<BusId>> { bus, bus2 }, DateTime.UtcNow);
-
+        var path = PathFinder.FindPath(busStation, busStation2, new List<Transport<BusId>> { bus, bus2 }, DateTime.UtcNow);
+        Console.WriteLine(path);
         /*        var route = RouteMaker.MakeNewRoute();
         Console.WriteLine(route.Transport.PlateNumber.Number);
         Console.WriteLine(route.Transport.Id.Value);
@@ -72,11 +72,11 @@ internal class Program
             Console.WriteLine(time.Time);
         }*/
         
-        var routes = RouteMaker.MakeNewRoutes(5);
+/*        var routes = RouteMaker.MakeNewRoutes(5);
         for (int i = 0; i < routes.Count; i++)
         {
             Console.WriteLine(routes[i].Transport);
             Console.WriteLine(RouteMaker.stopsList[i].StationName);
-        }
+        }*/
     }
 }

@@ -27,7 +27,7 @@ namespace Optimizer.PathMaker.RouteMaker
             {
 
                 time = time.AddMinutes(15);
-                arrivalTimes.Add(ArrivalTime.Create(station, time));
+                arrivalTimes.Add(ArrivalTime.Create(station, time, random.Next(0, 100)));
 
             }
             var route = Route<BusId>.Create(bus, arrivalTimes);
