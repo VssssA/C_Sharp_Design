@@ -60,7 +60,7 @@ internal class Program
         bus2.AddRoute(route4);
 
         var path = PathFinder.FindPath(busStation, busStation2, new List<Transport<BusId>> { bus, bus2 }, DateTime.UtcNow);
-
+        Console.WriteLine(path);
         /*        var route = RouteMaker.MakeNewRoute();
         Console.WriteLine(route.Transport.PlateNumber.Number);
         Console.WriteLine(route.Transport.Id.Value);
@@ -72,11 +72,11 @@ internal class Program
             Console.WriteLine(time.Time);
         }*/
         
-        var routes = RouteMaker.MakeNewRoutes(5);
+/*        var routes = RouteMaker.MakeNewRoutes(5);
         for (int i = 0; i < routes.Count; i++)
         {
             Console.WriteLine(routes[i].Transport);
             Console.WriteLine(RouteMaker.stopsList[i].StationName);
-        }
+        }*/
     }
 }

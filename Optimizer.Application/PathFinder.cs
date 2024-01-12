@@ -29,69 +29,8 @@ public class PathFinder
             new List<(List<(Transport<TTransportId>, List<ArrivalTime>)> transportRoutes, TimeSpan TotalTime)>();
         var intermediateWays =
             new List<(List<(Transport<TTransportId>, List<ArrivalTime>)> TransportRoutes, TimeSpan TotalTime)>();
-
-        foreach (var transport in firstStationTransport)
-        {
-            foreach (var route in transport.TransportRoutes)
-            {
-                if (!route.ArrivalTimes.Any(a => a.Station == firstStation && a.Time > currentDateTime)
-                    || route.ArrivalTimes[^1].Station == firstStation)
-                {
-                    continue;
-                }
-
-                var firstStationIndex = route.ArrivalTimes
-                    .ToList()
-                    .FindIndex(a => a.Station == firstStation);
-
-                var lastStationIndex = route.ArrivalTimes
-                    .ToList()
-                    .FindIndex(a => a.Station == lastStation);
-
-                if (route.ArrivalTimes.Any(a => a.Station == lastStation) && firstStationIndex < lastStationIndex)
-                {
-                    var stations = new List<ArrivalTime>();
-                    for (var i = firstStationIndex; i <= lastStationIndex; i++)
-                    {
-                        stations.Add(route.ArrivalTimes[i]);
-                    }
-
-                    var totalTime = stations[^1].Time - stations[0].Time;
-                    var transportRoutes = new List<(Transport<TTransportId>, List<ArrivalTime>)>
-                    {
-                        (transport, stations)
-                    };
-
-                    possibleWays.Add((transportRoutes, totalTime));
-                }
-
-                foreach (var arrivalTime in route.ArrivalTimes.Where(a => a.Time > currentDateTime))
-                {
-                    //TODO вынести в метод
-
-                    var intermediateStationIndex = route.ArrivalTimes
-                        .ToList()
-                        .FindIndex(a => a.Station == arrivalTime.Station);
-
-                    if (firstStationIndex < intermediateStationIndex && intermediateStationIndex != lastStationIndex)
-                    {
-                        var stations = new List<ArrivalTime>();
-                        for (var i = firstStationIndex; i <= intermediateStationIndex; i++)
-                        {
-                            stations.Add(route.ArrivalTimes[i]);
-                        }
-
-                        var totalTime = stations[^1].Time - stations[0].Time;
-                        var transportRoutes = new List<(Transport<TTransportId>, List<ArrivalTime>)>
-                        {
-                            (transport, stations)
-                        };
-
-                        intermediateWays.Add((transportRoutes, totalTime));
-                    }
-                }
-            }
-        }
+        var refreshRoutes = false;
+        MakeRoutes(lastStation, possibleWays, intermediateWays, firstStation, firstStationTransport, currentDateTime, refreshRoutes);
 
         var transfersCount = 2;
         for (var j = 0; j < transfersCount; j++)
@@ -112,79 +51,8 @@ public class PathFinder
                         startArrivalStationTransport.Add(transport);
                     }
                 }
-
-
-                foreach (var transport in startArrivalStationTransport)
-                {
-                    foreach (var route in transport.TransportRoutes)
-                    {
-                        if (!route.ArrivalTimes.Any(
-                                a => a.Station == startArrival.Station && a.Time > startArrival.Time)
-                            || route.ArrivalTimes[^1].Station == startArrival.Station)
-                        {
-                            continue;
-                        }
-
-                        var firstStationIndex = route.ArrivalTimes
-                            .ToList()
-                            .FindIndex(a => a.Station == startArrival.Station);
-
-                        var lastStationIndex = route.ArrivalTimes
-                            .ToList()
-                            .FindIndex(a => a.Station == lastStation);
-
-                        if (route.ArrivalTimes.Any(a => a.Station == lastStation) &&
-                            firstStationIndex < lastStationIndex)
-                        {
-                            var stations = new List<ArrivalTime>();
-                            for (var i = firstStationIndex; i <= lastStationIndex; i++)
-                            {
-                                stations.Add(route.ArrivalTimes[i]);
-                            }
-
-                            var totalTime = stations[^1].Time - stations[0].Time;
-                            var transportRoutes = new List<(Transport<TTransportId>, List<ArrivalTime>)>();
-                            foreach (var oldTransportRoute in path.TransportRoutes)
-                            {
-                                transportRoutes.Add(oldTransportRoute);
-                            }
-
-                            transportRoutes.Add((transport, stations));
-
-                            possibleWays.Add((transportRoutes, totalTime + path.TotalTime));
-                        }
-
-                        foreach (var arrivalTime in route.ArrivalTimes.Where(a => a.Time > startArrival.Time))
-                        {
-                            //TODO вынести в метод
-
-                            var intermediateStationIndex = route.ArrivalTimes
-                                .ToList()
-                                .FindIndex(a => a.Station == arrivalTime.Station);
-
-                            if (firstStationIndex < intermediateStationIndex &&
-                                intermediateStationIndex != lastStationIndex)
-                            {
-                                var stations = new List<ArrivalTime>();
-                                for (var i = firstStationIndex; i <= intermediateStationIndex; i++)
-                                {
-                                    stations.Add(route.ArrivalTimes[i]);
-                                }
-
-                                var totalTime = stations[^1].Time - stations[0].Time;
-                                var transportRoutes = new List<(Transport<TTransportId>, List<ArrivalTime>)>();
-                                foreach (var oldTransportRoute in path.TransportRoutes)
-                                {
-                                    transportRoutes.Add(oldTransportRoute);
-                                }
-
-                                transportRoutes.Add((transport, stations));
-
-                                intermediateWays.Add((transportRoutes, totalTime + path.TotalTime));
-                            }
-                        }
-                    }
-                }
+                refreshRoutes = true;
+                MakeRoutes(lastStation, possibleWays, intermediateWays, startArrival.Station, startArrivalStationTransport,startArrival.Time, refreshRoutes);
             }
         }
 
@@ -197,8 +65,8 @@ public class PathFinder
 
         var transportRoute = routesWithAvgMaxPassengersPercent.MinBy(r =>
             r.way.TotalTime.TotalMinutes * (r.Item2 * r.Item2));
-        var transportWay = transportRoute.way;
-        var routes = transportWay.transportRoutes;
+        var (transportRoutes, TotalTime) = transportRoute.way;
+        var routes = transportRoutes;
 
         var result = new List<(Transport<TTransportId>, List<Station>)>();
         foreach (var way in routes)
@@ -207,6 +75,118 @@ public class PathFinder
             result.Add((way.Item1, stations));
         }
 
-        return (result, transportWay.TotalTime, transportRoute.Item2);
+        return (result, TotalTime, transportRoute.Item2);
     }
+
+    private static void MakeRoutes<TTransportId>(
+        Station lastStation,
+        List<(List<(Transport<TTransportId>, List<ArrivalTime>)> transportRoutes, TimeSpan TotalTime)> possibleWays,
+        List<(List<(Transport<TTransportId>, List<ArrivalTime>)> TransportRoutes, TimeSpan TotalTime)> intermediateWays,
+        Station station,
+        List<Transport<TTransportId>> startArrivalStationTransport,
+        DateTime time,
+        bool refresh) where TTransportId : TransportId
+    {
+        foreach (var transport in startArrivalStationTransport)
+        {
+            foreach (var route in transport.TransportRoutes)
+            {
+                if (!route.ArrivalTimes.Any(
+                        a => a.Station == station && a.Time > time)
+                    || route.ArrivalTimes[^1].Station == station)
+                {
+                    continue;
+                }
+                var firstStationIndex = route.ArrivalTimes
+                    .ToList()
+                    .FindIndex(a => a.Station == station);
+
+                var lastStationIndex = route.ArrivalTimes
+                    .ToList()
+                    .FindIndex(a => a.Station == lastStation);
+
+                if (route.ArrivalTimes.Any(a => a.Station == lastStation) && firstStationIndex < lastStationIndex)
+                {
+                    AddOrRefreshRoutesAndTime(possibleWays, transport, route, firstStationIndex, lastStationIndex, refresh);
+                }
+
+                foreach (var arrivalTime in route.ArrivalTimes.Where(a => a.Time > time))
+                {
+                    var intermediateStationIndex = route.ArrivalTimes
+                        .ToList()
+                        .FindIndex(a => a.Station == arrivalTime.Station);
+
+                    if (firstStationIndex < intermediateStationIndex && intermediateStationIndex != lastStationIndex)
+                    {
+                        AddOrRefreshRoutesAndTime(intermediateWays, transport, route, firstStationIndex, intermediateStationIndex, refresh);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void RefreshRoutesAndTime<TTransportId>(
+        List<(List<(Transport<TTransportId>, List<ArrivalTime>)> TransportRoutes, TimeSpan TotalTime)> ways,
+        (List<(Transport<TTransportId>, List<ArrivalTime>)> TransportRoutes, TimeSpan TotalTime) path,
+        Transport<TTransportId> transport,
+        Domain.Route.Route<TTransportId> route,
+        int firstIndex,
+        int secondIndex) where TTransportId : TransportId
+    {
+        var stations = new List<ArrivalTime>();
+        for (var i = firstIndex; i <= secondIndex; i++)
+        {
+            stations.Add(route.ArrivalTimes[i]);
+        }
+
+        var totalTime = stations[^1].Time - stations[0].Time;
+        var transportRoutes = new List<(Transport<TTransportId>, List<ArrivalTime>)>();
+        foreach (var oldTransportRoute in path.TransportRoutes)
+        {
+            transportRoutes.Add(oldTransportRoute);
+        }
+
+        transportRoutes.Add((transport, stations));
+
+        ways.Add((transportRoutes, totalTime + path.TotalTime));
+    }
+
+    private static void AddOrRefreshRoutesAndTime<TTransportId>(
+    List<(List<(Transport<TTransportId>, List<ArrivalTime>)> TransportRoutes, TimeSpan TotalTime)> ways,
+    Transport<TTransportId> transport,
+    Domain.Route.Route<TTransportId> route,
+    int firstIndex,
+    int secondIndex,
+    bool refresh) where TTransportId : TransportId
+    {
+        var stations = new List<ArrivalTime>();
+        for (var i = firstIndex; i <= secondIndex; i++)
+        {
+            stations.Add(route.ArrivalTimes[i]);
+        }
+
+        var totalTime = stations[^1].Time - stations[0].Time;
+
+        if (refresh)
+        {
+            foreach (var path in ways.ToList())
+            {
+                var lastStationTime = path.TransportRoutes.Last().Item2.Last().Time;
+                if (lastStationTime <= stations[0].Time)
+                {
+                    RefreshRoutesAndTime(ways, path, transport, route, firstIndex, secondIndex);
+                }
+            }
+        }
+        else
+        {
+            var transportRoutes = new List<(Transport<TTransportId>, List<ArrivalTime>)>
+        {
+            (transport, stations)
+        };
+
+            ways.Add((transportRoutes, totalTime));
+        }
+    }
+
 }
