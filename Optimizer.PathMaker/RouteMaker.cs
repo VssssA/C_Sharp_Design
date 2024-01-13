@@ -22,7 +22,7 @@ namespace Optimizer.PathMaker.RouteMaker
             var station = BusStation.Create("Station" + random.Next(1, 10));
             stopsList.Add(station);
 
-            DateTime time = new DateTime(random.Next(2024, 2024), random.Next(1, 12), random.Next(1, 31), random.Next(6, 12), random.Next(0, 60), random.Next(0, 60));
+            var time = new DateTime(random.Next(2024, 2024), random.Next(1, 12), random.Next(1, 31), random.Next(6, 12), random.Next(0, 60), random.Next(0, 60));
             for (int i = 0; i < 10; i++)
             {
 
