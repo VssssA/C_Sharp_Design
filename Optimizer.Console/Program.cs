@@ -1,82 +1,162 @@
-﻿using Optimizer.Application;
+﻿using System.Globalization;
+using Optimizer.Application;
 using Optimizer.Domain.Bus;
 using Optimizer.Domain.Bus.Entities;
 using Optimizer.Domain.Bus.ValueObjects;
 using Optimizer.Domain.Common.Entities;
+using Optimizer.Domain.Common.ValueObjects;
 using Optimizer.Domain.Route;
 using Optimizer.Domain.Route.ValueObjects;
 using Optimizer.PathMaker.RouteMaker;
 
 internal class Program
 {
+    private const string MainMenu = """
+                                    1 - Создать автобус;
+                                    2 - Создать остановку;
+                                    3 - Создать маршрут автобуса;
+                                    4 - Посмотреть все автобусы;
+                                    5 - Посмотреть все остановки;
+                                    6 - Построить лучший путь;
+                                    0 - Выйти;
+                                    """;
+
+    private static readonly List<Transport<BusId>> Buses = new();
+    private static readonly List<BusStation> BusStations = new();
+    private static readonly List<Route<BusId>> Routes = new();
     private static void Main(string[] args)
+    {   
+        Console.WriteLine(MainMenu);
+        var answer = Console.ReadLine();
+        while (answer != null && answer != "0")
+        {
+            if (answer == "1")
+            {
+                Console.WriteLine("Введите максимальное количество пассажиров");
+                var maxPassengersCount = int.Parse(Console.ReadLine());
+                Console.WriteLine("Введите знаковый номер автобуса");
+                var plateNumber = Console.ReadLine();
+                Buses.Add(Bus.Create(maxPassengersCount, PlateNumber.Create(plateNumber)));
+                Console.WriteLine("Вы создали новый автобус под номером {0}", plateNumber);
+            }
+            else if (answer == "2")
+            {
+                Console.WriteLine("Введите название остановки");
+                var busStationName = Console.ReadLine();
+                BusStations.Add(BusStation.Create(busStationName));
+                Console.WriteLine("Вы создали остановку {0}", busStationName);
+            }
+            else if (answer == "3")
+            {
+                if (Buses.Count < 1)
+                {
+                    Console.WriteLine("Пока не создано автобусов для маршрута");
+                    Console.WriteLine(MainMenu);
+                    answer = Console.ReadLine();
+                    continue;
+                }
+                
+                if (BusStations.Count < 2)
+                {   
+                    PrintErrorWithText("Пока не создано как минимум двух станций для маршрута");
+                    answer = Console.ReadLine();
+                    continue;
+                }
+                
+                Console.WriteLine("Выберите автобус для маршрута");
+                PrintAllBuses();
+                var busNumber = int.Parse(Console.ReadLine());
+                if (busNumber < 1 || busNumber > Buses.Count)
+                {
+                    PrintErrorWithText("Неверный индекс автобуса");
+                    answer = Console.ReadLine();
+                    continue;
+                }
+                
+                Console.WriteLine("Сколько станций в маршруте?");
+                var busStationsCount = int.Parse(Console.ReadLine());
+                var arrivalTimes = new List<ArrivalTime>();
+                for (var i = 0; i < busStationsCount; i++)
+                {
+                    Console.WriteLine("Создание маршрута №{0}", i+1);
+                    Console.WriteLine("Выберите станцию");
+                    PrintAllStations();
+
+                    var busStationIndex = int.Parse(Console.ReadLine());
+
+                    var date = DateTime.UtcNow.AddHours(i+1);
+                
+                    Console.WriteLine("Введите количество людей на остановке");
+                    var peoplesCount = int.Parse(Console.ReadLine());
+                    arrivalTimes.Add(ArrivalTime.Create(BusStations[busStationIndex-1], date, peoplesCount));
+                }
+
+                var newRoute = Route<BusId>.Create(Buses[busNumber-1], arrivalTimes);
+                Routes.Add(Route<BusId>.Create(Buses[busNumber-1], arrivalTimes));
+                Buses[busNumber-1].AddRoute(newRoute);
+            }
+            else if (answer == "4")
+            {
+                Console.WriteLine();
+                PrintAllBuses();
+                Console.WriteLine();
+            }
+            else if (answer == "5")
+            {
+                Console.WriteLine();
+                for(var i = 0; i<BusStations.Count; i++)
+                {
+                    Console.WriteLine("{0}: Остановка с названием {1}", i+1, BusStations[i].StationName);
+                }
+                Console.WriteLine();
+            }
+            else if (answer == "6")
+            {
+                Console.WriteLine("Выберите станцию отправления");
+                PrintAllStations();
+                var startStationIndex = int.Parse(Console.ReadLine());
+                
+                Console.WriteLine("Выберите станцию прибытия");
+                PrintAllStations();
+                var endStationIndex = int.Parse(Console.ReadLine());
+                var path = PathFinder.FindPath(BusStations[startStationIndex-1],
+                    BusStations[endStationIndex-1], Buses, DateTime.UtcNow);
+                var bestRoute = path.Item1[0];
+                Console.WriteLine("Лучшиq вариант поездки для вас: Автобус с номером {0}", (bestRoute.Item1 as Bus).PlateNumber);
+                Console.WriteLine("Он поедет через такие остановки");
+                foreach (var station in bestRoute.Item2)
+                {
+                    Console.WriteLine("Остановка {0}", station.StationName);
+                }
+                
+                Console.WriteLine("Время в пути: {0}, Средний процент загруженности автобуса: {1}", path.Time, path.avgMaxPassPercent);
+            }
+            Console.WriteLine(MainMenu);
+            answer = Console.ReadLine();
+        }
+        Console.WriteLine(answer);
+    }
+
+    private static void PrintAllStations()
     {
-        var bus = Bus.Create(100, PlateNumber.Create("bus"));
-        var bus2 = Bus.Create(100, PlateNumber.Create("bus2"));
-        var busStation = BusStation.Create("Station1");
-        var busStation2 = BusStation.Create("Station2");
-        var busStation3 = BusStation.Create("Station3");
-        var busStation4 = BusStation.Create("Station4");
-        var busStation5 = BusStation.Create("Station5");
-        var busStation6 = BusStation.Create("Station6");
+        for (var i = 0; i < BusStations.Count; i++)
+        {
+            Console.WriteLine("{0}: Остановка с названием {1}", i + 1, BusStations[i].StationName);
+        }
+    }
 
-        var arrivalTimes = new List<ArrivalTime>
-        {
-            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(1), 25),
-            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(2), 67),
-            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(3), 88),
-            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(4), 10),
-        };
-        var arrivalTimes2 = new List<ArrivalTime>
-        {
-            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(1), 10),
-            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(2), 20),
-            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(3), 25),
-            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(4), 12),
-        };
-        var arrivalTimes3 = new List<ArrivalTime>
-        {
-            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(1), 100),
-            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(2), 100),
-            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(3), 100),
-            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(4), 100),
-            ArrivalTime.Create(busStation6, DateTime.UtcNow.AddHours(5), 100),
-        };
-        var arrivalTimes4 = new List<ArrivalTime>
-        {
-            ArrivalTime.Create(busStation6, DateTime.UtcNow.AddHours(1), 70),
-            ArrivalTime.Create(busStation, DateTime.UtcNow.AddHours(2), 12),
-            ArrivalTime.Create(busStation5, DateTime.UtcNow.AddHours(3), 14),
-            ArrivalTime.Create(busStation3, DateTime.UtcNow.AddHours(4), 20),
-            ArrivalTime.Create(busStation2, DateTime.UtcNow.AddHours(5), 40),
-        };
-        var route = Route<BusId>.Create(bus, arrivalTimes);
-        var route2 = Route<BusId>.Create(bus, arrivalTimes2);
-        var route3 = Route<BusId>.Create(bus, arrivalTimes3);
-        var route4 = Route<BusId>.Create(bus, arrivalTimes4);
-        bus.AddRoute(route);
-        bus.AddRoute(route2);
-        bus2.AddRoute(route3);
-        bus2.AddRoute(route4);
+    private static void PrintErrorWithText(string text)
+    {
+        Console.WriteLine(text);
+        Console.WriteLine(MainMenu);
+    }
 
-        var path = PathFinder.FindPath(busStation, busStation2, new List<Transport<BusId>> { bus, bus2 }, DateTime.UtcNow);
-        Console.WriteLine(path);
-        /*        var route = RouteMaker.MakeNewRoute();
-        Console.WriteLine(route.Transport.PlateNumber.Number);
-        Console.WriteLine(route.Transport.Id.Value);
-        Console.WriteLine(route.ArrivalTimes.Count);
-        Console.WriteLine(route.Transport.MaxPassengersCount);
-        Console.WriteLine(route.ArrivalTimes);
-        foreach (var time in route.ArrivalTimes)
+    private static void PrintAllBuses()
+    {
+        for (var i = 0; i < Buses.Count; i++)
         {
-            Console.WriteLine(time.Time);
-        }*/
-        
-/*        var routes = RouteMaker.MakeNewRoutes(5);
-        for (int i = 0; i < routes.Count; i++)
-        {
-            Console.WriteLine(routes[i].Transport);
-            Console.WriteLine(RouteMaker.stopsList[i].StationName);
-        }*/
+            Console.WriteLine("{0}: Автобус с номером {1}, максимальное число пассажиров - {2}",
+                i + 1, (Buses[i] as Bus).PlateNumber, Buses[i].MaxPassengersCount);
+        }
     }
 }
