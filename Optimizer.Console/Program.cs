@@ -123,14 +123,15 @@ internal class Program
                 var path = PathFinder.FindPath(BusStations[startStationIndex-1],
                     BusStations[endStationIndex-1], Buses, DateTime.UtcNow);
                 var bestRoute = path.Item1[0];
-                Console.WriteLine("Лучшиq вариант поездки для вас: Автобус с номером {0}", (bestRoute.Item1 as Bus).PlateNumber);
+                Console.WriteLine("Лучший вариант поездки для вас: Автобус с номером {0}", (bestRoute.Item1 as Bus).PlateNumber);
                 Console.WriteLine("Он поедет через такие остановки");
                 foreach (var station in bestRoute.Item2)
                 {
                     Console.WriteLine("Остановка {0}", station.StationName);
                 }
                 
-                Console.WriteLine("Время в пути: {0}, Средний процент загруженности автобуса: {1}", path.Time, path.avgMaxPassPercent);
+                Console.WriteLine("Время в пути: {0}ч:{1}м:{2}с, Средний процент загруженности автобуса: {3}%",
+                    path.Time.Hours, path.Time.Minutes, path.Time.Seconds, (int)(path.avgMaxPassPercent * 100));
             }
             Console.WriteLine(MainMenu);
             answer = Console.ReadLine();
