@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Optimizer.Application", "Op
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Optimizer.Domain", "Optimizer.Domain\Optimizer.Domain.csproj", "{40A71CE1-003A-4877-BA2E-629B71F02001}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimizer.PathMaker", "Optimizer.PathMaker\Optimizer.PathMaker.csproj", "{83E8CDB2-EA71-4588-8DD6-905DB9D62515}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Optimizer.PathMaker", "Optimizer.PathMaker\Optimizer.PathMaker.csproj", "{83E8CDB2-EA71-4588-8DD6-905DB9D62515}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
