@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.IO.Pipes;
 using Optimizer.Application;
 using Optimizer.Domain.Bus;
 using Optimizer.Domain.Bus.Entities;
